@@ -1,8 +1,19 @@
 import type { BadgePreset, Sponsor, Sponsorship } from './types'
 import type { SponsorkitConfig } from '.'
 
+let index = 0
 export function genSvgImage(x: number, y: number, size: number, url: string) {
-  return `<image x="${x}" y="${y}" width="${size}" height="${size}" xlink:href="${url}"/>`
+  ++index
+  return `
+  <g width="${size}" height="${size}">
+  <defs>
+    <clipPath id="circleClip${index}">
+    <circle cx="${x + (size / 2)}" cy="${y + (size / 2)}" r="${size / 2}"/>
+    </clipPath>
+  </defs>
+  <image x="${x}" y="${y}" width="${size}" height="${size}" xlink:href="${url}" clip-path="url(#circleClip${index})"/>
+</g>
+`
 }
 
 export function generateBadge(
@@ -32,9 +43,9 @@ export function generateBadge(
 
   return `<a ${url ? `xlink:href="${url}" ` : ''}class="${preset.classes || 'sponsorkit-link'}" target="_blank" id="${login}">
   ${preset.name
-? `<text x="${x + size / 2}" y="${y + size + 18}" text-anchor="middle" class="${preset.name.classes || 'sponsorkit-name'}" fill="${preset.name.color || 'currentColor'}">${encodeHtmlEntities(name)}</text>
+      ? `<text x="${x + size / 2}" y="${y + size + 18}" text-anchor="middle" class="${preset.name.classes || 'sponsorkit-name'}" fill="${preset.name.color || 'currentColor'}">${encodeHtmlEntities(name)}</text>
   `
-: ''}${genSvgImage(x, y, size, avatarUrl)}
+      : ''}${genSvgImage(x, y, size, avatarUrl)}
 </a>`.trim()
 }
 
@@ -42,7 +53,7 @@ export class SvgComposer {
   height = 0
   body = ''
 
-  constructor(public readonly config: Required<SponsorkitConfig>) {}
+  constructor(public readonly config: Required<SponsorkitConfig>) { }
 
   addSpan(height = 0) {
     this.height += height

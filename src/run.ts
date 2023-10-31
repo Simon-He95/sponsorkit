@@ -21,14 +21,19 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
   const config = await loadConfig(inlineConfig)
   const dir = resolve(process.cwd(), config.outputDir)
   const cacheFile = resolve(dir, config.cacheFile)
-
   const providers = resolveProviders(config.providers || guessProviders(config))
 
   let allSponsors: Sponsorship[] = []
   if (!fs.existsSync(cacheFile) || config.force) {
     for (const i of providers) {
       t.info(`Fetching sponsorships from ${i.name}...`)
-      let sponsors = await i.fetchSponsors(config)
+      let sponsors: any[] = []
+      try {
+        // sponsors = await i.fetchSponsors(config)
+      }
+      catch (error) {
+
+      }
       sponsors.forEach(s => s.provider = i.name)
       sponsors = await config.onSponsorsFetched?.(sponsors, i.name) || sponsors
       t.success(`${sponsors.length} sponsorships fetched from ${i.name}`)
@@ -70,6 +75,7 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
   t.info('Composing SVG...')
   const composer = new SvgComposer(config)
   await (config.customComposer || defaultComposer)(composer, allSponsors, config)
+
   let svg = composer.generateSvg()
 
   svg = await config.onSvgGenerated?.(svg) || svg
