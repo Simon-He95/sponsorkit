@@ -4,14 +4,8 @@ const customGithubUser = [{
   user: 'geekris1',
   monthlyDollars: 1,
 }, {
-  user: 'ShenQingchuan',
-  monthlyDollars: 10000,
-}, {
-  user: 'yyx990803',
-  monthlyDollars: 1000,
-}, {
-  user: 'antfu',
-  monthlyDollars: 100,
+  user: 'saltand',
+  monthlyDollars: 30,
 }]
 
 export default defineConfig({
