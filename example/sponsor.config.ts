@@ -1,15 +1,19 @@
 import { defineConfig, presets } from 'sponsorkit'
 
 const customGithubUser = [{
-  user: 'simon',
-  monthlyDollars: 10,
-}, {
-  user: 'simon',
+  user: 'geekris1',
   monthlyDollars: 1,
 }, {
-  user: 'simon',
-  monthlyDollars: 1,
+  user: 'ShenQingchuan',
+  monthlyDollars: 10000,
+}, {
+  user: 'yyx990803',
+  monthlyDollars: 1000,
+}, {
+  user: 'antfu',
+  monthlyDollars: 100,
 }]
+
 export default defineConfig({
   // includePrivate: true,
   tiers: [

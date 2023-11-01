@@ -207,6 +207,13 @@ export interface SponsorkitConfig extends ProvidersConfig {
   formats?: OutputFormat[]
 
   /**
+ * Output formats
+ *
+ * @default ['json', 'svg', 'png']
+ */
+  customGithubUser?: { user: string, monthlyDollars: number }[]
+
+  /**
    * Hook to modify sponsors data before fetching the avatars.
    */
   onSponsorsFetched?: (sponsors: Sponsorship[], provider: ProviderName | string) => PromiseLike<void | Sponsorship[]> | void | Sponsorship[]

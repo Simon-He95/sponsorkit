@@ -9,7 +9,6 @@ export async function customAddUser(users: { user: string; monthlyDollars: numbe
         .then((data: any) => {
           // 提取头像地址和仓库地址
           customData.push({
-            tierName: 'Sponsors',
             sponsor: {
               type: 'User',
               name: user,

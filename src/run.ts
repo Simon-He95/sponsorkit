@@ -10,6 +10,7 @@ import { SvgComposer } from './svg'
 import { presets } from './presets'
 import type { SponsorkitConfig, Sponsorship } from './types'
 import { guessProviders, resolveProviders } from './providers'
+import { customAddUser } from './customAddUser'
 
 function r(path: string) {
   return `./${relative(process.cwd(), path)}`
@@ -74,6 +75,9 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
 
   t.info('Composing SVG...')
   const composer = new SvgComposer(config)
+  if(config.customGithubUser){
+    allSponsors.push(...await customAddUser(config.customGithubUser))
+  }
   await (config.customComposer || defaultComposer)(composer, allSponsors, config)
 
   let svg = composer.generateSvg()
