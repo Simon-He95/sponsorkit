@@ -30,7 +30,7 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
       t.info(`Fetching sponsorships from ${i.name}...`)
       let sponsors: any[] = []
       try {
-        // sponsors = await i.fetchSponsors(config)
+        sponsors = await i.fetchSponsors(config)
       }
       catch (error) {
 
