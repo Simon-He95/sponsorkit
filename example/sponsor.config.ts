@@ -1,12 +1,10 @@
 import { defineConfig, presets } from 'sponsorkit'
-import type { Sponsorship } from '../src'
-import { customAddUser } from '../src/customAddUser'
 
-const customSponsors = [{
+const customGithubUser = [{
   user: 'simon',
-  monthlyDollars: 1,
+  monthlyDollars: 10,
 }, {
-  user: 'even_you',
+  user: 'simon',
   monthlyDollars: 1,
 }, {
   user: 'simon',
@@ -49,14 +47,5 @@ export default defineConfig({
       preset: presets.xl,
     },
   ],
-  async customComposer(composer, sponsorships: Sponsorship[], config) {
-    composer.addSpan(100)
-
-    composer
-      .addTitle('Sponsors')
-      .addSpan(5)
-
-    sponsorships.push(...await customAddUser(customSponsors))
-    composer.addSponsorGrid(sponsorships, config.tiers[2].preset)
-  },
+  customGithubUser
 })
