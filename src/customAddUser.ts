@@ -1,11 +1,12 @@
-import fetch from 'node-fetch'
+import { $fetch } from 'ofetch'
 
 export async function customAddUser(users: { user: string; monthlyDollars: number }[]) {
   const customData: any[] = []
   await Promise.all(users.map(({ user, monthlyDollars }) => {
     return new Promise((resolve, reject) => {
-      fetch(`https://api.github.com/users/${user}`)
-        .then((response: any) => response.json())
+      $fetch(`https://api.github.com/users/${user}`, {
+        responseType: 'json'
+      })
         .then((data: any) => {
           // 提取头像地址和仓库地址
           customData.push({
