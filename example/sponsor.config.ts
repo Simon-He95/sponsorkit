@@ -1,4 +1,4 @@
-import { defineConfig, presets } from 'sponsorkit'
+import { defineConfig, presets } from '../src/'
 
 const customGithubUser = [{
   user: 'geekris1',

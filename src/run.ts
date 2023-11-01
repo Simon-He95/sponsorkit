@@ -18,7 +18,7 @@ function r(path: string) {
 
 export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
   t.log(`\n${c.magenta(c.bold('SponsorKit'))} ${c.dim(`v${version}`)}\n`)
-
+  debugger
   const config = await loadConfig(inlineConfig)
   const dir = resolve(process.cwd(), config.outputDir)
   const cacheFile = resolve(dir, config.cacheFile)
@@ -75,6 +75,7 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
 
   t.info('Composing SVG...')
   const composer = new SvgComposer(config)
+  debugger
   if(config.customGithubUser){
     allSponsors.push(...await customAddUser(config.customGithubUser))
   }

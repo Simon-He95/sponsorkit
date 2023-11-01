@@ -5,8 +5,5 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
-    "sponsorkit": "latest"
   }
 }
