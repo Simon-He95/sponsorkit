@@ -75,9 +75,10 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
 
   t.info('Composing SVG...')
   const composer = new SvgComposer(config)
-  debugger
   if(config.customGithubUser){
-    allSponsors.push(...await customAddUser(config.customGithubUser))
+    const customSponsors = await customAddUser(config.customGithubUser)
+    await resolveAvatars(customSponsors, config.fallbackAvatar, t)
+    allSponsors.push(...customSponsors)
   }
   await (config.customComposer || defaultComposer)(composer, allSponsors, config)
 

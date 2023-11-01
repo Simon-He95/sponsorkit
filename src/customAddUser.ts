@@ -14,7 +14,7 @@ export async function customAddUser(users: { user: string; monthlyDollars: numbe
               type: 'User',
               name: user,
               login: user,
-              avatarUrl: await toBase64(data.avatar_url),
+              avatarUrl: data.avatar_url,
               linkUrl: `https://github.com/${user}`,
             },
             monthlyDollars,
