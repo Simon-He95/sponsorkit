@@ -11,6 +11,9 @@ importers:
       consola:
         specifier: ^3.2.3
         version: 3.2.3
+      d3-hierarchy:
+        specifier: ^3.1.2
+        version: 3.1.2
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
@@ -2205,6 +2208,11 @@ packages:
 
   /csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
+    dev: false
+
+  /d3-hierarchy@3.1.2:
+    resolution: {integrity: sha512-FX/9frcub54beBdugHjDCdikxThEqjnR93Qt7PvQTOHxyiNCAlvMrHhclk3cD5VeAaq9fxmfRp+CnWw9rEMBuA==}
+    engines: {node: '>=12'}
     dev: false
 
   /dashdash@1.14.1:

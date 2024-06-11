@@ -45,5 +45,5 @@ export default defineConfig({
       preset: presets.xl,
     },
   ],
-  customGithubUser
+  customGithubUser,
 })

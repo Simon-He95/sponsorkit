@@ -207,11 +207,11 @@ export interface SponsorkitConfig extends ProvidersConfig {
   formats?: OutputFormat[]
 
   /**
- * Output formats
- *
- * @default ['json', 'svg', 'png']
- */
-  customGithubUser?: { user: string, monthlyDollars: number }[]
+   * Output formats
+   *
+   * @default ['json', 'svg', 'png']
+   */
+  customGithubUser?: { user: string; monthlyDollars: number }[]
 
   /**
    * Hook to modify sponsors data before fetching the avatars.
@@ -275,6 +275,35 @@ export interface SponsorkitConfig extends ProvidersConfig {
    * Inline CSS of generated SVG
    */
   svgInlineCSS?: string
+  type?: 'tiers' | 'circle'
+  circles?: CircleRenderOptions
+}
+
+export interface CircleRenderOptions {
+  /**
+   * Min radius for sponsors
+   *
+   * @default 10
+   */
+  radiusMin?: number
+  /**
+   * Max radius for sponsors
+   *
+   * @default 300
+   */
+  radiusMax?: number
+  /**
+   * Radius for past sponsors
+   *
+   * @default 5
+   */
+  radiusPast?: number
+  /**
+   * Custom function to calculate the weight of the sponsor.
+   *
+   * When provided, `radiusMin`, `radiusMax` and `radiusPast` will be ignored.
+   */
+  weightInterop?: (sponsor: Sponsorship, maxAmount: number) => number
 }
 
 export interface Tier {
