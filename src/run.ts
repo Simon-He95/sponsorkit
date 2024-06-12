@@ -19,76 +19,45 @@ function r(path: string) {
 export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
   t.log(`\n${c.magenta(c.bold('SponsorKit'))} ${c.dim(`v${version}`)}\n`)
   const config = await loadConfig(inlineConfig)
-  const type = config.type || 'tiers'
+  const type = config.type || 'all'
   const dir = resolve(process.cwd(), config.outputDir)
   const cacheFile = resolve(dir, config.cacheFile)
   const providers = resolveProviders(config.providers || guessProviders(config))
 
-  let allSponsors: Sponsorship[] = []
-  if (!fs.existsSync(cacheFile) || config.force) {
-    for (const i of providers) {
-      t.info(`Fetching sponsorships from ${i.name}...`)
-      let sponsors: any[] = []
-      try {
-        sponsors = await i.fetchSponsors(config)
-      }
-      catch (error) {
+  t.info('Composing SVG...')
 
-      }
-      sponsors.forEach(s => s.provider = i.name)
-      sponsors = await config.onSponsorsFetched?.(sponsors, i.name) || sponsors
-      t.success(`${sponsors.length} sponsorships fetched from ${i.name}`)
-      allSponsors.push(...sponsors)
+  let allSponsors = await getAllSponsors()
+
+  if (type === 'all') {
+    generateTier()
+    generateCircle()
+  }
+  else if (type === 'tiers') {
+    generateTier()
+  }
+  else if (type === 'circle') {
+    generateCircle()
+  }
+
+  async function generateTier() {
+    const composer = new SvgComposer(config)
+    await (config.customComposer || defaultComposer)(composer, allSponsors, config)
+    let svg = composer.generateSvg()
+    svg = await config.onSvgGenerated?.(svg) || svg
+    if (config.formats?.includes('svg')) {
+      const path = join(dir, `${config.name}.svg`)
+      await fs.writeFile(path, svg, 'utf-8')
+      t.success(`Wrote to ${r(path)}`)
     }
 
-    t.info('Resolving avatars...')
-    await resolveAvatars(allSponsors, config.fallbackAvatar, t)
-    t.success('Avatars resolved')
-
-    await fs.ensureDir(dirname(cacheFile))
-    await fs.writeJSON(cacheFile, allSponsors, { spaces: 2 })
-  }
-  else {
-    allSponsors = await fs.readJSON(cacheFile)
-    t.success(`Loaded from cache ${r(cacheFile)}`)
+    if (config.formats?.includes('png')) {
+      const path = join(dir, `${config.name}.png`)
+      await fs.writeFile(path, await svgToPng(svg))
+      t.success(`Wrote to ${r(path)}`)
+    }
   }
 
-  // Sort
-  allSponsors.sort((a, b) =>
-    b.monthlyDollars - a.monthlyDollars // DESC amount
-    || Date.parse(b.createdAt!) - Date.parse(a.createdAt!) // DESC date
-    || (b.sponsor.login || b.sponsor.name).localeCompare(a.sponsor.login || a.sponsor.name), // ASC name
-  )
-
-  await fs.ensureDir(dir)
-  if (config.formats?.includes('json')) {
-    const path = join(dir, `${config.name}.json`)
-    await fs.writeJSON(path, allSponsors, { spaces: 2 })
-    t.success(`Wrote to ${r(path)}`)
-  }
-
-  allSponsors = await config.onSponsorsReady?.(allSponsors) || allSponsors
-  if (config.filter)
-    allSponsors = allSponsors.filter(s => config.filter(s, allSponsors) !== false)
-  if (!config.includePrivate)
-    allSponsors = allSponsors.filter(s => s.privacyLevel !== 'PRIVATE')
-
-  t.info('Composing SVG...')
-  const composer = new SvgComposer(config)
-  if (config.customGithubUser) {
-    const customSponsors = await customAddUser(config.customGithubUser)
-    await resolveAvatars(customSponsors, config.fallbackAvatar, t)
-    allSponsors.push(...customSponsors)
-  }
-  let svg
-  if (type === 'tiers') {
-    await (config.customComposer || defaultComposer)(composer, allSponsors, config)
-
-    svg = composer.generateSvg()
-
-    svg = await config.onSvgGenerated?.(svg) || svg
-  }
-  else {
+  async function generateCircle() {
     const { hierarchy, pack } = await import('d3-hierarchy')
     const composer = new SvgComposer(config)
 
@@ -113,7 +82,7 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
       .sum(d => weightInterop(d, amountMax))
       .sort((a, b) => (b.value || 0) - (a.value || 0))
 
-    const p = pack<typeof sponsors[0]>()
+    const p = pack<typeof allSponsors[0]>()
     p.size([config.width, config.width])
     p.padding(config.width / 400)
     const circles = p(root as any).descendants().slice(1)
@@ -136,41 +105,96 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
 
     composer.height = config.width
 
-    svg = composer.generateSvg()
-  }
-  if (config.formats?.includes('svg')) {
-    const path = join(dir, `${config.name}.svg`)
-    await fs.writeFile(path, svg, 'utf-8')
-    t.success(`Wrote to ${r(path)}`)
-  }
+    const svg = composer.generateSvg()
+    if (config.formats?.includes('svg')) {
+      const path = join(dir, `${config.name}_circle.svg`)
+      await fs.writeFile(path, svg, 'utf-8')
+      t.success(`Wrote to ${r(path)}`)
+    }
 
-  if (config.formats?.includes('png')) {
-    const path = join(dir, `${config.name}.png`)
-    await fs.writeFile(path, await svgToPng(svg))
-    t.success(`Wrote to ${r(path)}`)
-  }
-
-  function lerp(a: number, b: number, t: number) {
-    if (t < 0)
-      return a
-    return a + (b - a) * t
-  }
-
-  async function getRoundedAvatars(sponsor: Sponsor) {
-    if (!sponsor.avatarBuffer || sponsor.type === 'User')
-      return sponsor
-
-    const data = base64ToArrayBuffer(sponsor.avatarBuffer)
-    /// keep-sorted
-    return {
-      ...sponsor,
-      avatarUrlHighRes: pngToDataUri(await round(data, 0.5, 120)),
-      avatarUrlLowRes: pngToDataUri(await round(data, 0.5, 50)),
-      avatarUrlMediumRes: pngToDataUri(await round(data, 0.5, 80)),
+    if (config.formats?.includes('png')) {
+      const path = join(dir, `${config.name}_circle.png`)
+      await fs.writeFile(path, await svgToPng(svg))
+      t.success(`Wrote to ${r(path)}`)
     }
   }
-}
+  async function getAllSponsors() {
+    let allSponsors: Sponsorship[] = []
 
+    if (config.customGithubUser) {
+      const customSponsors = await customAddUser(config.customGithubUser)
+      await resolveAvatars(customSponsors, config.fallbackAvatar, t)
+      allSponsors.push(...customSponsors)
+    }
+
+    if (!fs.existsSync(cacheFile) || config.force) {
+      for (const i of providers) {
+        t.info(`Fetching sponsorships from ${i.name}...`)
+        let sponsors: any[] = []
+        try {
+          sponsors = await i.fetchSponsors(config)
+        }
+        catch (error) {
+
+        }
+        sponsors.forEach(s => s.provider = i.name)
+        sponsors = await config.onSponsorsFetched?.(sponsors, i.name) || sponsors
+        t.success(`${sponsors.length} sponsorships fetched from ${i.name}`)
+        allSponsors.push(...sponsors)
+      }
+
+      t.info('Resolving avatars...')
+      await resolveAvatars(allSponsors, config.fallbackAvatar, t)
+      t.success('Avatars resolved')
+
+      await fs.ensureDir(dirname(cacheFile))
+      await fs.writeJSON(cacheFile, allSponsors, { spaces: 2 })
+    }
+    else {
+      allSponsors = await fs.readJSON(cacheFile)
+      t.success(`Loaded from cache ${r(cacheFile)}`)
+    }
+
+    // Sort
+    allSponsors.sort((a, b) =>
+      b.monthlyDollars - a.monthlyDollars // DESC amount
+      || Date.parse(b.createdAt!) - Date.parse(a.createdAt!) // DESC date
+      || (b.sponsor.login || b.sponsor.name).localeCompare(a.sponsor.login || a.sponsor.name), // ASC name
+    )
+
+    await fs.ensureDir(dir)
+    if (config.formats?.includes('json')) {
+      const path = join(dir, `${config.name}.json`)
+      await fs.writeJSON(path, allSponsors, { spaces: 2 })
+      t.success(`Wrote to ${r(path)}`)
+    }
+
+    allSponsors = await config.onSponsorsReady?.(allSponsors) || allSponsors
+    if (config.filter)
+      allSponsors = allSponsors.filter(s => config.filter(s, allSponsors) !== false)
+    if (!config.includePrivate)
+      allSponsors = allSponsors.filter(s => s.privacyLevel !== 'PRIVATE')
+    return allSponsors
+  }
+}
+async function getRoundedAvatars(sponsor: Sponsor) {
+  if (!sponsor.avatarBuffer || sponsor.type === 'User')
+    return sponsor
+
+  const data = base64ToArrayBuffer(sponsor.avatarBuffer)
+  /// keep-sorted
+  return {
+    ...sponsor,
+    avatarUrlHighRes: pngToDataUri(await round(data, 0.5, 120)),
+    avatarUrlLowRes: pngToDataUri(await round(data, 0.5, 50)),
+    avatarUrlMediumRes: pngToDataUri(await round(data, 0.5, 80)),
+  }
+}
+function lerp(a: number, b: number, t: number) {
+  if (t < 0)
+    return a
+  return a + (b - a) * t
+}
 export async function defaultComposer(composer: SvgComposer, sponsors: Sponsorship[], config: SponsorkitConfig) {
   const tierPartitions = partitionTiers(sponsors, config.tiers!)
 

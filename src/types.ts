@@ -34,6 +34,7 @@ export interface Sponsor {
   avatarUrlLowRes?: string
   websiteUrl?: string
   linkUrl?: string
+  avatarBuffer?: string
 }
 
 export interface Sponsorship {
@@ -275,7 +276,7 @@ export interface SponsorkitConfig extends ProvidersConfig {
    * Inline CSS of generated SVG
    */
   svgInlineCSS?: string
-  type?: 'tiers' | 'circle'
+  type?: 'tiers' | 'circle' | 'all'
   circles?: CircleRenderOptions
 }
 
