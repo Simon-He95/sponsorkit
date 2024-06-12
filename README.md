@@ -122,11 +122,16 @@ Check the type definition or source code for more utils available.
 ## Sponsors
 
 <p align="center">
-  <a href="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg'/>
+  <a href="https://cdn.jsdelivr.net/gh/Simon-He95/sponsor/sponsors.svg">
+    <img src="https://cdn.jsdelivr.net/gh/Simon-He95/sponsor/sponsors.svg"/>
   </a>
 </p>
 
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/Simon-He95/sponsor/sponsors_circle.svg">
+    <img src="https://cdn.jsdelivr.net/gh/Simon-He95/sponsor/sponsors_circle.svg"/>
+  </a>
+</p>
 ## License
 
 [MIT](./LICENSE) License © 2022 [Anthony Fu](https://github.com/antfu)
