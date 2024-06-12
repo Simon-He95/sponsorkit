@@ -52,7 +52,7 @@ cli.command(
     if (options.filter)
       config.filter = createFilterFromString(options.filter)
 
-    await run({ ...config, type: 'circle' })
+    await run(config)
   },
 )
 
