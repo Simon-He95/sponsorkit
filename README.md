@@ -53,43 +53,42 @@ npx sponsorkit
 Create `sponsorkit.config.js` file with:
 
 ```ts
-import { defineConfig, presets } from 'sponsorkit'
+import { defineConfig, presets } from '@simon_he/sponsorkit'
+import { customGithubUser } from './sponsors'
+
+const customGithubUser = [
+  {
+  user: 'github_username',
+  monthlyDollars: 666,
+  }
+]
 
 export default defineConfig({
-  // Providers configs
-  github: {
-    login: 'antfu',
-    type: 'user',
-  },
-  opencollective: {
-    // ...
-  },
-  patreon: {
-    // ...
-  },
-  afdian: {
-    // ...
-  },
-
-  // Rendering configs
-  width: 800,
-  formats: ['json', 'svg', 'png'],
+  // includePrivate: true,
+  type: 'all',
   tiers: [
-    // Past sponsors, currently only supports GitHub
     {
       title: 'Past Sponsors',
       monthlyDollars: -1,
       preset: presets.xs,
     },
-    // Default tier
     {
       title: 'Backers',
-      preset: presets.base,
+      // to replace the entire tier rendering
+      // compose: (composer, tierSponsors, config) => {
+      //   composer.addRaw(
+      //     '<-- custom svg -->',
+      //   )
+      // },
     },
     {
       title: 'Sponsors',
       monthlyDollars: 10,
       preset: presets.medium,
+      // to insert custom elements after the tier block
+      composeAfter: (composer, _tierSponsors, _config) => {
+        composer.addSpan(10)
+      },
     },
     {
       title: 'Silver Sponsors',
@@ -102,6 +101,7 @@ export default defineConfig({
       preset: presets.xl,
     },
   ],
+  customGithubUser
 })
 ```
 
