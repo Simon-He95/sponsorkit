@@ -164,7 +164,9 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
           await resolveAvatars(customSponsors, config.fallbackAvatar, t)
           //
           allSponsors.push(...customSponsors)
-          t.success(`Added new users: ${filters.map(i => i.user).join(' ')} custom sponsorships`)
+          t.success(`Added new users: ${filters.map(i => `[${i.user}]`).join(' ')} custom sponsorships`)
+          // 更新 cacheFile
+          await fs.writeJSON(cacheFile, allSponsors, { spaces: 2 })
         }
       }
       t.success(`Loaded from cache ${r(cacheFile)}`)
