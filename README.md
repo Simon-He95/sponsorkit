@@ -1,44 +1,10 @@
 # SponsorKit
-
-[![NPM version](https://img.shields.io/npm/v/sponsorkit?color=a1b858&label=)](https://www.npmjs.com/package/sponsorkit)
-
-Toolkit for generating sponsors images. Supports **GitHub Sponsors**, **Patreon**, **OpenCollective** and **Afdian**.
+灵感来源于 [antfu/sponsorkit](https://github.com/antfu-collective/sponsorkit), 支持了针对未开通 Github Sponsors 或 收到来自非 Github Sponsors 的赞助的用户的展示, 比如 wechat 、alipay...
 
 ## Usage
-
-Create `.env` file with:
-
-```ini
-; GitHub provider.
-; Token requires the `read:user` and `read:org` scopes.
-SPONSORKIT_GITHUB_TOKEN=
-SPONSORKIT_GITHUB_LOGIN=
-
-; Patreon provider.
-; Create v2 API key at https://www.patreon.com/portal/registration/register-clients
-; and use the "Creator’s Access Token".
-SPONSORKIT_PATREON_TOKEN=
-
-; OpenCollective provider.
-; Create an API key at https://opencollective.com/applications
-SPONSORKIT_OPENCOLLECTIVE_KEY=
-; and provide the ID, slug or GitHub handle of your account.
-SPONSORKIT_OPENCOLLECTIVE_ID=
-; or
-SPONSORKIT_OPENCOLLECTIVE_SLUG=
-; or
-SPONSORKIT_OPENCOLLECTIVE_GH_HANDLE=
-; If it is a personal account, set it to `person`. Otherwise not set or set to `collective`
-SPONSORKIT_OPENCOLLECTIVE_TYPE=
-
-; Afdian provider.
-; Get user_id at https://afdian.net/dashboard/dev
-SPONSORKIT_AFDIAN_USER_ID=
-; Create token at https://afdian.net/dashboard/dev
-SPONSORKIT_AFDIAN_TOKEN=
-```
-
-> Only one provider is required to be configured.
+- 针对 GitHub Sponsors 用户的使用方法请参考 [antfu/sponsorkit的文档](https://github.com/antfu-collective/sponsorkit)
+- 非 GitHub Sponsors 需要配置 `customGithubUser` 字段, 请参考 [Configurations](#configurations) 部分
+- 默认 type 为 `all`, 可以通过配置文件修改, 同时生成 条形图 和 圆形图
 
 Run:
 
@@ -46,7 +12,6 @@ Run:
 npx sponsorkit
 ```
 
-[Example Setup](./example/) | [GitHub Actions Setup](https://github.com/antfu/static/blob/master/.github/workflows/scheduler.yml) | [Generated SVG](https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg)
 
 ## Configurations
 

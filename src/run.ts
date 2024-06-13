@@ -168,8 +168,13 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
           // 更新 cacheFile
           await fs.writeJSON(cacheFile, allSponsors, { spaces: 2 })
         }
+        else {
+          t.success(`Loaded from cache ${r(cacheFile)}`)
+        }
       }
-      t.success(`Loaded from cache ${r(cacheFile)}`)
+      else {
+        t.success(`Loaded from cache ${r(cacheFile)}`)
+      }
     }
 
     // Sort
