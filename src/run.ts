@@ -121,12 +121,6 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
   async function getAllSponsors() {
     let allSponsors: Sponsorship[] = []
 
-    if (config.customGithubUser) {
-      const customSponsors = await customAddUser(config.customGithubUser)
-      await resolveAvatars(customSponsors, config.fallbackAvatar, t)
-      allSponsors.push(...customSponsors)
-    }
-
     if (!fs.existsSync(cacheFile) || config.force) {
       for (const i of providers) {
         t.info(`Fetching sponsorships from ${i.name}...`)
@@ -142,6 +136,11 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
         t.success(`${sponsors.length} sponsorships fetched from ${i.name}`)
         allSponsors.push(...sponsors)
       }
+      if (config.customGithubUser) {
+        const customSponsors = await customAddUser(config.customGithubUser)
+        await resolveAvatars(customSponsors, config.fallbackAvatar, t)
+        allSponsors.push(...customSponsors)
+      }
 
       t.info('Resolving avatars...')
       await resolveAvatars(allSponsors, config.fallbackAvatar, t)
@@ -152,6 +151,22 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
     }
     else {
       allSponsors = await fs.readJSON(cacheFile)
+      if (config.customGithubUser) {
+        const cacheUsers = allSponsors.map(s => ({ user: s.sponsor.name, monthlyDollars: s.monthlyDollars }))
+        const isCached = (user: any) => cacheUsers.some(c => c.user === user.user && c.monthlyDollars === user.monthlyDollars)
+        const isNeedUpdateMonthlyDollars = (user: any) => cacheUsers.some(c => c.user === user.user && c.monthlyDollars !== user.monthlyDollars)
+        // 过滤掉缓存中已存在的 username
+        const filters = config.customGithubUser.filter(p => p.user && !isCached(p))
+        allSponsors = allSponsors.filter(s => !isNeedUpdateMonthlyDollars({ user: s.sponsor.name, monthlyDollars: s.monthlyDollars }))
+        // 如果 old user 但是 monthlyDollars 不同,也要重新获取
+        const customSponsors = await customAddUser(filters)
+        if (customSponsors.length > 0) {
+          await resolveAvatars(customSponsors, config.fallbackAvatar, t)
+          //
+          allSponsors.push(...customSponsors)
+          t.success(`Added new users: ${filters.map(i => i.user).join(' ')} custom sponsorships`)
+        }
+      }
       t.success(`Loaded from cache ${r(cacheFile)}`)
     }
 

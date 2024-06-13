@@ -58,8 +58,8 @@ import { customGithubUser } from './sponsors'
 
 const customGithubUser = [
   {
-  user: 'github_username',
-  monthlyDollars: 666,
+    user: 'github_username',
+    monthlyDollars: 666,
   }
 ]
 
