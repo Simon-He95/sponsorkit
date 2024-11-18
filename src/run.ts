@@ -114,7 +114,7 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
 
     if (config.formats?.includes('png')) {
       const path = join(dir, `${config.name}_circle.png`)
-      await fs.writeFile(path, await svgToPng(svg))
+      await fs.writeFile(path, await svgToPng(svg) as any)
       t.success(`Wrote to ${r(path)}`)
     }
   }
@@ -162,7 +162,8 @@ export async function run(inlineConfig?: SponsorkitConfig, t = consola) {
         const customSponsors = await customAddUser(filters)
         if (customSponsors.length > 0) {
           await resolveAvatars(customSponsors, config.fallbackAvatar, t)
-          //
+          // 如果有新的用户,则添加到 allSponsors中和customSponsors有相同的用户删除allSponsors中的用户
+          allSponsors = allSponsors.filter(s => !customSponsors.some(c => c.sponsor.name === s.sponsor.name))
           allSponsors.push(...customSponsors)
           t.success(`Added new users: ${filters.map(i => `[${i.user}]`).join(' ')} custom sponsorships`)
           // 更新 cacheFile
